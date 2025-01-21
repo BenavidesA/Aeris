@@ -42,7 +42,7 @@ int main()
             break;
         case 5:
             // Predecir niveles futuros basados en los datos de las zonas y el clima
-            predecir_niveles_futuros(zonas, 5, clima);
+            predecir_niveles_futuros(zonas, 5);
             break;
         case 6:
             // Espacio reservado para funcionalidad futura

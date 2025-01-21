@@ -27,6 +27,6 @@ void leerzonas(struct Zona *zonas, int num_zonas);
 void monitorear_contaminacion(struct Zona *zonas, int num_zonas);
 void calcular_promedios_historicos(struct Zona *zonas, int num_zonas);
 void generar_recomendaciones(struct Zona *zonas, int num_zonas);
-void predecir_niveles_futuros(struct Zona *zonas, int num_zonas, struct Clima clima);
+void predecir_niveles_futuros(struct Zona *zonas, int num_zonas);
 void pedirDatosZona(struct Zona *zona, const char *nombre);
 void leer_niveles_actuales(struct Zona *zonas, int num_zonas);

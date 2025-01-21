@@ -10,15 +10,15 @@
 int menu()
 {
     int opcion;
-    printf("\nMenu:\n");
+    printf("\n");
     printf("1. Ingresar datos de las zonas\n");
     printf("2. Generar recomendaciones\n");
-    printf("3. Monitorear niveles de contaminacion\n");
-    printf("4. Calcular promedios historicos\n");
+    printf("3. Monitorear niveles de contaminación\n");
+    printf("4. Calcular promedios históricos\n");
     printf("5. Predecir niveles futuros\n");
-    printf("6. Funcionalidad futura\n");
+    printf("6. Funcionalidad adicional\n");
     printf("7. Salir\n");
-    printf("Seleccione una opcion: ");
+    printf("Seleccione una opción: ");
     scanf("%d", &opcion);
     return opcion;
 }
@@ -35,7 +35,7 @@ void leerzonas(struct Zona *zonas, int num_zonas)
 
     for (int i = 0; i < num_zonas; i++)
     {
-        fscanf(file, "%s", zonas[i].nombre);
+        fscanf(file, "%49s", zonas[i].nombre); // Limitar la longitud del nombre a 49 caracteres
         for (int j = 0; j < NUM_CONTAMINANTES; j++)
         {
             fscanf(file, "%d", &zonas[i].niveles_actuales[j]);
@@ -127,164 +127,156 @@ void monitorear_contaminacion(struct Zona *zonas, int num_zonas)
 
 
 // Función para predecir los niveles futuros de contaminación basados en el clima
-void predecir_niveles_futuros(struct Zona *zonas, int num_zonas, struct Clima clima)
-{
-    // Definir límites de contaminantes
+void predecir_niveles_futuros(struct Zona *zonas, int num_zonas) {
+    // Límites de contaminantes
     int limites[NUM_CONTAMINANTES] = {Limite_CO2, Limite_NO2, Limite_SO2, Limite_PM25};
     const char *contaminante_names[NUM_CONTAMINANTES] = {"CO2", "NO2", "SO2", "PM2.5"};
 
-    // Leer datos históricos de contaminación
+    // Abrir archivo de datos históricos
     FILE *file = fopen("niveles_historicos.dat", "r");
-    if (file == NULL)
-    {
-        printf("Error al abrir el archivo de niveles históricos.\n");
+    if (file == NULL) {
+        printf("Error al abrir el archivo niveles_historicos.dat.\n");
         return;
     }
 
-    // Leer los datos históricos de cada zona
-    for (int i = 0; i < num_zonas; i++)
-    {
+    // Leer datos históricos de cada zona
+    for (int i = 0; i < num_zonas; i++) {
         fscanf(file, "%s", zonas[i].nombre);  // Leer el nombre de la zona
 
-        // Leer los datos históricos para cada contaminante
-        for (int j = 0; j < NUM_CONTAMINANTES; j++)
-        {
-            for (int k = 0; k < 30; k++)  // Los últimos 30 días
-            {
+        // Leer los niveles históricos para los últimos 30 días por contaminante
+        for (int j = 0; j < NUM_CONTAMINANTES; j++) {
+            for (int k = 0; k < 30; k++) {
                 fscanf(file, "%f", &zonas[i].niveles_historicos[k][j]);
+                // Validar valores negativos
+                if (zonas[i].niveles_historicos[k][j] < 0) {
+                    printf("Advertencia: valor negativo en zona %s, contaminante %s, día %d. Ajustado a 0.\n",
+                           zonas[i].nombre, contaminante_names[j], k + 1);
+                    zonas[i].niveles_historicos[k][j] = 0.0;
+                }
             }
         }
     }
     fclose(file);
 
-    // Leer datos climáticos históricos
+    // Abrir archivo de datos climáticos
     FILE *clima_file = fopen("climatico.dat", "r");
-    if (clima_file == NULL)
-    {
-        printf("Error al abrir el archivo de datos climáticos.\n");
+    if (clima_file == NULL) {
+        printf("Error al abrir el archivo climatico.dat.\n");
         return;
     }
 
+    // Leer datos climáticos para los últimos 30 días
     struct Clima clima_historico[30];
-    for (int i = 0; i < 30; i++)
-    {
-        fscanf(clima_file, "%f %f %f", &clima_historico[i].temperatura, &clima_historico[i].velocidad_viento, &clima_historico[i].humedad);
+    for (int k = 0; k < 30; k++) {
+        fscanf(clima_file, "%f %f %f", &clima_historico[k].temperatura,
+               &clima_historico[k].velocidad_viento, &clima_historico[k].humedad);
     }
     fclose(clima_file);
 
-    // Imprimir encabezado para los resultados
+    // Imprimir encabezado
     printf("Predicción de niveles futuros:\n");
-    printf("-------------------------------------------------\n");
-    printf("| Zona       | Contaminante | Nivel | Limite | %% |\n");
-    printf("-------------------------------------------------\n");
+    printf("----------------------------------------------------------------------------\n");
+    printf("| Zona       | Contaminante | Nivel Futuro | Limite  | %% Limite | Total Zona |\n");
+    printf("----------------------------------------------------------------------------\n");
 
-    // Realizar predicción para cada zona y contaminante
-    for (int i = 0; i < num_zonas; i++)
-    {
-        // Promediar los datos históricos de los últimos 30 días
-        for (int j = 0; j < NUM_CONTAMINANTES; j++)
-        {
-            float sum = 0.0;
-            // Sumar los niveles históricos
-            for (int k = 0; k < 30; k++)
-            {
-                sum += zonas[i].niveles_historicos[k][j];
+    // Calcular predicciones
+    for (int i = 0; i < num_zonas; i++) {
+        float total_contaminacion_zona = 0.0;  // Predicción total para la zona
+
+        for (int j = 0; j < NUM_CONTAMINANTES; j++) {
+            // Calcular promedio de los últimos 30 días
+            float suma = 0.0;
+            for (int k = 0; k < 30; k++) {
+                suma += zonas[i].niveles_historicos[k][j];
             }
+            float promedio = suma / 30.0;
 
-            // Calcular el promedio de los últimos 30 días
-            float promedio = sum / 30.0;
-
-            // Factor climático de predicción
+            // Calcular factor climático
             float factor = 1.0;
-            for (int k = 0; k < 30; k++)
-            {
-                if (clima_historico[k].temperatura > 30)  // Si la temperatura es alta
+            for (int k = 0; k < 30; k++) {
+                if (clima_historico[k].temperatura > 30)
                     factor += 0.1 / 30;
-                if (clima_historico[k].velocidad_viento < 5)  // Si la velocidad del viento es baja
+                if (clima_historico[k].velocidad_viento < 5)
                     factor += 0.1 / 30;
-                if (clima_historico[k].humedad < 30)  // Si la humedad es baja
+                if (clima_historico[k].humedad < 30)
                     factor += 0.1 / 30;
             }
 
-            // Calcular el nivel futuro
+            // Calcular nivel futuro
             int nivel_futuro = (int)(promedio * factor);
+            if (nivel_futuro < 0) nivel_futuro = 0;  // Ajustar a 0 si es negativo
 
-            // Calcular el porcentaje con respecto al límite
+            // Calcular porcentaje con respecto al límite
             float porcentaje = (float)nivel_futuro / limites[j] * 100;
 
-            // Imprimir los resultados de la predicción
-            printf("| %-10s | %-12s | %-5d | %-6d | %-3.2f%% |\n",
-                   zonas[i].nombre, contaminante_names[j], nivel_futuro, limites[j], porcentaje);
+            // Sumar al total de la zona
+            total_contaminacion_zona += nivel_futuro;
 
-            // Verificar si el nivel futuro excede el límite
-            if (nivel_futuro > limites[j])
-            {
-                float excedente = ((float)nivel_futuro - limites[j]) / limites[j] * 100;
-                printf("Advertencia: El nivel del contaminante %s en la zona %s excederá el límite por %.2f%%\n",
-                       contaminante_names[j], zonas[i].nombre, excedente);
-            }
+            // Imprimir resultados por contaminante
+            printf("| %-10s | %-12s | %-12d | %-7d | %-9.2f | %-11.2f |\n",
+                   zonas[i].nombre, contaminante_names[j], nivel_futuro, limites[j], porcentaje, total_contaminacion_zona);
         }
-    }
 
-    printf("-------------------------------------------------\n");
+        // Imprimir total por zona
+        printf("----------------------------------------------------------------------------\n");
+        printf("| Total Predicción de Contaminación para la zona %-10s: %-11.2f |\n", zonas[i].nombre, total_contaminacion_zona);
+        printf("----------------------------------------------------------------------------\n");
+    }
 }
+
 
 
 
 // Función para calcular los promedios históricos de contaminación
 void calcular_promedios_historicos(struct Zona *zonas, int num_zonas)
 {
-    int NUM_DIAS = 30;
     FILE *file = fopen("niveles_historicos.dat", "r");
-    if (file == NULL)
-    {
-        printf("Error abriendo el archivo de datos históricos!\n");
+    if (file == NULL) {
+        printf("Error al abrir el archivo niveles_actuales.dat\n");
         return;
     }
 
-    int limites[NUM_CONTAMINANTES] = {Limite_CO2, Limite_NO2, Limite_SO2, Limite_PM25};
-    const char *nombres_contaminantes[NUM_CONTAMINANTES] = {"CO2", "NO2", "SO2", "PM2.5"};
+    char nombre_zona[50];
+    float suma_contaminantes[NUM_CONTAMINANTES] = {0.0};
+    num_zonas = 0;
 
-    for (int i = 0; i < num_zonas; i++)
-    {
-        // Leer el nombre de la zona
-        fscanf(file, "%s", zonas[i].nombre);
-        printf("Zona: %s\n", zonas[i].nombre);
+    // Leer datos del archivo
+    while (fscanf(file, "%s", nombre_zona) != EOF) {
+        float suma_diaria[NUM_CONTAMINANTES] = {0.0};
 
-        // Leer los datos históricos para los 30 días de cada contaminante
-        for (int j = 0; j < NUM_CONTAMINANTES; j++)
-        {
-            float sum = 0;
-            // Leer los 30 días de datos para el contaminante j
-            for (int k = 0; k < NUM_DIAS; k++)
-            {
-                if (fscanf(file, "%f", &zonas[i].niveles_historicos[k][j]) != 1)
-                {
-                    printf("Error leyendo datos históricos para la zona %s, contaminante %s\n", zonas[i].nombre, nombres_contaminantes[j]);
-                    fclose(file);
-                    return;
+        // Leer los 30 días de datos para los 4 contaminantes
+        for (int dia = 0; dia < 30; dia++) {
+            for (int i = 0; i < NUM_CONTAMINANTES; i++) {
+                float contaminante;
+                if (fscanf(file, "%f", &contaminante) == 1) {
+                    suma_diaria[i] += contaminante;
                 }
-                sum += zonas[i].niveles_historicos[k][j]; // Sumar los niveles de contaminación
-            }
-
-            // Calcular el promedio de los últimos 30 días
-            float promedio = sum / NUM_DIAS;
-            float porcentaje = (promedio / limites[j]) * 100;
-
-            // Mostrar los resultados
-            printf("Promedio del contaminante %s: %.2f (%.2f%% del límite)\n", nombres_contaminantes[j], promedio, porcentaje);
-
-            // Verificar si el promedio excede el límite
-            if (promedio > limites[j])
-            {
-                float excedente = ((promedio - limites[j]) / limites[j]) * 100;
-                printf("Advertencia: El promedio del contaminante %s en la zona %s excede el límite por %.2f%%\n",
-                       nombres_contaminantes[j], zonas[i].nombre, excedente);
             }
         }
+
+        // Sumar los promedios diarios de cada contaminante
+        for (int i = 0; i < NUM_CONTAMINANTES; i++) {
+            suma_contaminantes[i] += suma_diaria[i] / 30; // Promedio diario por zona
+        }
+        num_zonas++;
     }
     fclose(file);
+
+    // Calcular los promedios generales por contaminante
+    printf("\nPromedio histórico de contaminación (últimos 30 días):\n");
+    float suma_total_contaminacion = 0.0;
+    const char *nombres_contaminantes[NUM_CONTAMINANTES] = {"CO2", "NO2", "SO2", "PM2.5"};
+    for (int i = 0; i < NUM_CONTAMINANTES; i++) {
+        float promedio_general = suma_contaminantes[i] / num_zonas;
+        printf("Promedio de %s: %.2f\n", nombres_contaminantes[i], promedio_general);
+        suma_total_contaminacion += promedio_general;
+    }
+
+    // Mostrar el valor total de contaminación
+    printf("Valor total de contaminación (suma de promedios): %.2f\n", suma_total_contaminacion);
 }
+
+
 
 
 // Función para generar recomendaciones basadas en los niveles actuales de contaminación

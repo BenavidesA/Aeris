@@ -1,6 +1,8 @@
 {
     "files.associations": {
-        "funciones.h": "c"
+        "funciones.h": "c",
+        "string.h": "c",
+        "stdio.h": "c"
     },
     "editor.formatOnSave": true
 }

@@ -54,12 +54,21 @@ void leer_niveles_actuales(struct Zona *zonas, int num_zonas)
         return;
     }
 
+    const char *nombres_contaminantes[NUM_CONTAMINANTES] = {"CO2", "NO2", "SO2", "PM2.5"};
+
     for (int i = 0; i < num_zonas; i++)
     {
         fscanf(file, "%s", zonas[i].nombre);
+        printf("Leyendo datos para la zona: %s\n", zonas[i].nombre);
         for (int j = 0; j < NUM_CONTAMINANTES; j++)
         {
-            fscanf(file, "%d", &zonas[i].niveles_actuales[j]);
+            do {
+                fscanf(file, "%d", &zonas[i].niveles_actuales[j]);
+                if (zonas[i].niveles_actuales[j] < 0) {
+                    printf("Error: El nivel de %s debe ser un número positivo. Intente de nuevo.\n", nombres_contaminantes[j]);
+                }
+            } while (zonas[i].niveles_actuales[j] < 0);
+            printf("  Nivel de %s: %d\n", nombres_contaminantes[j], zonas[i].niveles_actuales[j]);
         }
     }
     fclose(file);

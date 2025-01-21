@@ -159,7 +159,7 @@ void predecir_niveles_futuros(struct Zona *zonas, int num_zonas, struct Clima cl
 // Función para calcular los promedios históricos de contaminación
 void calcular_promedios_historicos(struct Zona *zonas, int num_zonas)
 {
-    FILE *file = fopen("historico.dat", "r");
+    FILE *file = fopen("historico.txt", "r");
     if (file == NULL)
     {
         printf("Error opening historical data file!\n");

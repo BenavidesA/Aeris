@@ -11,7 +11,8 @@ struct Zona
 {
     char nombre[50];
     float niveles_actuales[NUM_CONTAMINANTES];         // Niveles actuales de contaminación
-    float promedios_historicos[30][NUM_CONTAMINANTES]; // Datos de los últimos 30 días
+    float niveles_historicos[30][NUM_CONTAMINANTES];
+     // Datos de los últimos 30 días
 };
 
 struct Clima
@@ -28,5 +29,4 @@ void calcular_promedios_historicos(struct Zona *zonas, int num_zonas);
 void generar_recomendaciones(struct Zona *zonas, int num_zonas);
 void predecir_niveles_futuros(struct Zona *zonas, int num_zonas, struct Clima clima);
 void pedirDatosZona(struct Zona *zona, const char *nombre);
-void pedirDatosClima(struct Clima *clima);
 void leer_niveles_actuales(struct Zona *zonas, int num_zonas);

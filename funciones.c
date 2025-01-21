@@ -165,10 +165,48 @@ void predecir_niveles_futuros(struct Zona *zonas, int num_zonas, struct Clima cl
     printf("-------------------------------------------------\n");
 }
 
+
+void promediohistoricodatos(struct Zona *zonas, int num_zonas)
+{
+    FILE *file = fopen("historico.dat", "r");
+    if (file == NULL)
+    {
+        printf("Error opening historical data file!\n");
+        return;
+    }
+
+    int limites[NUM_CONTAMINANTES] = {Limite_CO2, Limite_NO2, Limite_SO2, Limite_PM25};
+    int historico[30][NUM_CONTAMINANTES];
+
+    for (int i = 0; i < num_zonas; i++)
+    {
+        printf("Zona: %s\n", zonas[i].nombre);
+        for (int j = 0; j < NUM_CONTAMINANTES; j++)
+        {
+            int sum = 0;
+            for (int k = 0; k < 30; k++)
+            {
+                fscanf(file, "%d", &historico[k][j]);
+                sum += historico[k][j];
+            }
+            int promedio = sum / 30;
+            float porcentaje = (float)promedio / limites[j] * 100;
+            printf("Promedio del contaminante %d: %d (%.2f%% del limite)\n", j + 1, promedio, porcentaje);
+            if (promedio > limites[j])
+            {
+                float excedente = ((float)promedio - limites[j]) / limites[j] * 100;
+                printf("Advertencia: El promedio del contaminante %d en la zona %s excede el limite por %.2f%%\n",
+                       j + 1, zonas[i].nombre, excedente);
+            }
+        }
+    }
+    fclose(file);
+}
+
 // Función para calcular los promedios históricos de contaminación
 void calcular_promedios_historicos(struct Zona *zonas, int num_zonas)
 {
-    FILE *file = fopen("historico.txt", "r");
+    FILE *file = fopen("historico.dat", "r");
     if (file == NULL)
     {
         printf("Error opening historical data file!\n");

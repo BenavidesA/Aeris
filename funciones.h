@@ -10,9 +10,9 @@
 struct Zona
 {
     char nombre[50];
-    float niveles_actuales[NUM_CONTAMINANTES];         // Niveles actuales de contaminación
+    float niveles_actuales[NUM_CONTAMINANTES];       
     float niveles_historicos[30][NUM_CONTAMINANTES];
-     // Datos de los últimos 30 días
+    struct Clima clima[30];
 };
 
 struct Clima
@@ -22,11 +22,3 @@ struct Clima
     float humedad;
 };
 
-int menu();
-void leerzonas(struct Zona *zonas, int num_zonas);
-void monitorear_contaminacion(struct Zona *zonas, int num_zonas);
-void calcular_promedios_historicos(struct Zona *zonas, int num_zonas);
-void generar_recomendaciones(struct Zona *zonas, int num_zonas);
-void predecir_niveles_futuros(struct Zona *zonas, int num_zonas);
-void pedirDatosZona(struct Zona *zona, const char *nombre);
-void leer_niveles_actuales(struct Zona *zonas, int num_zonas);

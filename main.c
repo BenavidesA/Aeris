@@ -15,18 +15,6 @@ int main() {
                 mostrarZonas();
                 break;
             case 3:
-                generarReporte();
-                break;
-            case 4:
-                promediohistorico();
-                break;
-            case 5:
-                generarReporteHistorico();
-                break;
-            case 6:
-                prediccionContaminantesPromedio(); 
-                break;
-            case 7: 
                 FILE *archivo = fopen("zonas.txt", "r");
 
                 if (archivo == NULL) {
@@ -36,14 +24,20 @@ int main() {
                 leer_reporte(archivo);
                 fclose(archivo);
                 break;
-
-            case 8:
+                break;
+            case 4:
+                promediohistorico();
+                break;
+            case 5:
+                prediccionContaminantesPromedio(); 
+                break;
+            case 6:
                 printf("Saliendo del programa...\n");
                 break;
             default:
                 printf("Opción no válida. Intente de nuevo.\n");
                 break;
         }
-    } while (opc != 8);
+    } while (opc != 6);
     return 0;
 }

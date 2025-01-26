@@ -1,0 +1,10 @@
+Reporte Histórico de Promedios de Contaminación del Aire
+Fecha: Jan 26 2025
+
+------------------------------------------------------------
+Promedio histórico de todos los contaminantes:
+------------------------------------------------------------
+Promedio general CO2: 401.69 ppm
+Promedio general SO2: 30.85 ppm
+Promedio general NO2: 41.01 ppm
+Promedio general PM2.5: 19.20 µg/m3

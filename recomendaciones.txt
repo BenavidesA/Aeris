@@ -1,0 +1,19 @@
+------------------------------------------------------------
+| Zona                 | CO2    | SO2    | NO2    | PM2.5  | Temperatura | Viento | Humedad |
+------------------------------------------------------------
+| valle                | 400.00 | 10.00  | 20.00  | 30.00  | 12.00       | 1.00   | 2.00    |
+Recomendaciones:
+- Se recomienda evitar actividades al aire libre debido a niveles elevados de SO2.
+- Reducir el uso de combustibles fosiles y promover el uso de energias renovables.
+- Se recomienda usar mascarilla debido a los altos niveles de NO2.
+- Implementar politicas para reducir las emisiones de vehiculos y promover el transporte publico.
+- Evitar la exposicion prolongada al aire debido a la alta concentracion de PM2.5.
+- Fomentar el uso de tecnologias de filtracion de aire en areas industriales y urbanas.
+------------------------------------------------------------
+| 342                  | 22.00  | 22.00  | 1.00   | 1.00   | 1.00        | 2.00   | 3.00    |
+Recomendaciones:
+- Se recomienda evitar actividades al aire libre debido a niveles elevados de SO2.
+- Reducir el uso de combustibles fosiles y promover el uso de energias renovables.
+- Se recomienda usar mascarilla debido a los altos niveles de NO2.
+- Implementar politicas para reducir las emisiones de vehiculos y promover el transporte publico.
+------------------------------------------------------------

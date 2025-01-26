@@ -34,10 +34,8 @@ struct Zona {
 void menu(); 
 void agregarZona();
 void mostrarZonas();
-void generarReporte();
 void promediohistorico();
 void limpiarBuffer();
-void generarReporteHistorico();
 void prediccionContaminantesPromedio();
 void leer_reporte(FILE *archivo);
 

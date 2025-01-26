@@ -1,0 +1,29 @@
+Reporte de Contaminación del Aire
+Fecha: Jan 26 2025
+
+------------------------------------------------------------
+Zona: valle
+------------------------------------------------------------
+- CO2: 400.00 ppm (Limite: 1000.00 ppm) [Dentro del límite]
+- SO2: 10.00 ppm (Limite: 0.01 ppm) [Excede el límite]
+- NO2: 20.00 ppm (Limite: 0.10 ppm) [Excede el límite]
+- PM2.5: 30.00 µg/m3 (Limite: 15.00 µg/m3) [Excede el límite]
+
+Condiciones climáticas:
+- Temperatura: 12.00°C
+- Velocidad del viento: 1.00 m/s
+- Humedad: 2.00%
+
+------------------------------------------------------------
+Zona: 342
+------------------------------------------------------------
+- CO2: 22.00 ppm (Limite: 1000.00 ppm) [Dentro del límite]
+- SO2: 22.00 ppm (Limite: 0.01 ppm) [Excede el límite]
+- NO2: 1.00 ppm (Limite: 0.10 ppm) [Excede el límite]
+- PM2.5: 1.00 µg/m3 (Limite: 15.00 µg/m3) [Dentro del límite]
+
+Condiciones climáticas:
+- Temperatura: 1.00°C
+- Velocidad del viento: 2.00 m/s
+- Humedad: 3.00%
+

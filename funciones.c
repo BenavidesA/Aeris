@@ -6,13 +6,11 @@ void menu() {
     int opcion;
     printf("\nMenú de opciones:\n");
     printf("1. Agregar zona\n");
-    printf("2. Mostrar zonas\n");
-    printf("3. Generar reporte actual\n");
-    printf("4. datos históricos\n");
-    printf("5. Generar reporte histórico\n");
-    printf("6. Predicción de contaminantes\n");
-    printf("7. Recomendaciones por zona\n");
-    printf("8. Salir\n");
+    printf("2. Monitoreo de contaminacion actual\n");
+    printf("3. Generar reporte\n");
+    printf("4. Promedio historico\n");
+    printf("5. prediccion futuros\n");
+    printf("6. Salir\n");
     printf("Seleccione una opción: ");
 }
 
@@ -115,10 +113,10 @@ void mostrarZonas()
 
     struct Zona zona;
     printf("Zonas registradas :\n");
-    printf("---------------------------------------------------------------------------------------------\n");
+    printf("---------------------------------------------------------------------------------------------------------------------\n");
     printf("| %-20s | %-6s | %-6s | %-6s | %-6s | %-11s | %-6s | %-7s | %-30s |\n", 
            "Nombre", "CO2", "SO2", "NO2", "PM2.5", "Temperatura", "Viento", "Humedad", "Advertencias");
-    printf("---------------------------------------------------------------------------------------------\n");
+    printf("---------------------------------------------------------------------------------------------------------------------\n");
     while (fscanf(f, "%s %f %f %f %f %f %f %f\n", 
                   zona.nombre, 
                   &zona.actual.CO2, 
@@ -160,72 +158,21 @@ void mostrarZonas()
         }
         printf(" |\n");
     }
-    printf("---------------------------------------------------------------------------------------------\n");
+    printf("---------------------------------------------------------------------------------------------------------------------\n");
 
     fclose(f);
 }
 
-// Función para generar un reporte de las zonas
-void generarReporte() 
-{
-    FILE *f = fopen("reporteactual.txt", "r");  // Abrir archivo de zonas para lectura
-    if (f == NULL) {
-        printf("Error: No se pudo abrir el archivo zonas.txt\n");
-        return;
-    }
-
-    FILE *reporte = fopen("reporte.txt", "w");  // Abrir archivo para escribir el reporte
-    if (reporte == NULL) {
-        printf("Error: No se pudo crear el reporte.txt\n");
-        fclose(f);
-        return;
-    }
-
-    struct Zona zona;
-    fprintf(reporte, "Reporte de Contaminación del Aire\nFecha: %s\n\n", __DATE__);
-
-    while (fscanf(f, "%s %f %f %f %f %f %f %f", 
-                  zona.nombre, 
-                  &zona.actual.CO2, 
-                  &zona.actual.SO2, 
-                  &zona.actual.NO2, 
-                  &zona.actual.PM2_5, 
-                  &zona.clima.temperatura, 
-                  &zona.clima.velocidad_viento, 
-                  &zona.clima.humedad) != EOF) {
-        
-        fprintf(reporte, "------------------------------------------------------------\n");
-        fprintf(reporte, "Zona: %s\n", zona.nombre);
-        fprintf(reporte, "------------------------------------------------------------\n");
-
-        // Escribir los niveles de contaminación y compararlos con los límites
-        fprintf(reporte, "- CO2: %.2f ppm (Limite: %.2f ppm) [%s]\n", zona.actual.CO2, LIMITE_CO2, zona.actual.CO2 > LIMITE_CO2 ? "Excede el límite" : "Dentro del límite");
-        fprintf(reporte, "- SO2: %.2f ppm (Limite: %.2f ppm) [%s]\n", zona.actual.SO2, LIMITE_SO2, zona.actual.SO2 > LIMITE_SO2 ? "Excede el límite" : "Dentro del límite");
-        fprintf(reporte, "- NO2: %.2f ppm (Limite: %.2f ppm) [%s]\n", zona.actual.NO2, LIMITE_NO2, zona.actual.NO2 > LIMITE_NO2 ? "Excede el límite" : "Dentro del límite");
-        fprintf(reporte, "- PM2.5: %.2f µg/m3 (Limite: %.2f µg/m3) [%s]\n", zona.actual.PM2_5, LIMITE_PM25, zona.actual.PM2_5 > LIMITE_PM25 ? "Excede el límite" : "Dentro del límite");
-
-        // Escribir las condiciones climáticas
-        fprintf(reporte, "\nCondiciones climáticas:\n");
-        fprintf(reporte, "- Temperatura: %.2f°C\n", zona.clima.temperatura);
-        fprintf(reporte, "- Velocidad del viento: %.2f m/s\n", zona.clima.velocidad_viento);
-        fprintf(reporte, "- Humedad: %.2f%%\n\n", zona.clima.humedad);
-    }
-
-    fclose(f);
-    fclose(reporte);
-    printf("Reporte generado correctamente en 'reporte.txt'.\n");
-}
 
 // Función para leer los datos históricos de las zonas
 void promediohistorico() {
     FILE *f = fopen("historico.txt", "r");  // Abrir el archivo de datos históricos
     if (f == NULL) {
-        printf("Error: No se pudo abrir el archivo zonas_historial.txt\n");
+        printf("Error: No se pudo abrir el archivo historico.txt\n");
         return;
     }
 
     struct Zona zona;
-    float totalCO2 = 0, totalSO2 = 0, totalNO2 = 0, totalPM25 = 0;
     int contadorZonas = 0;
 
     // Leer las líneas del archivo
@@ -239,22 +186,37 @@ void promediohistorico() {
                   &zona.clima.velocidad_viento, 
                   &zona.clima.humedad) == 8) {
         
-        // Acumulamos los niveles de contaminantes
-        totalCO2 += zona.actual.CO2;
-        totalSO2 += zona.actual.SO2;
-        totalNO2 += zona.actual.NO2;
-        totalPM25 += zona.actual.PM2_5;
-        contadorZonas++;
-    }
+        // Arrays para almacenar los valores de contaminantes de los 30 días
+        float totalCO2 = 0, totalSO2 = 0, totalNO2 = 0, totalPM25 = 0;
 
-    if (contadorZonas > 0) {
+        // Llenar los arrays con los datos de los contaminantes para los 30 días
+        for (int i = 0; i < 30; i++) {
+            totalCO2 += zona.actual.CO2;
+            totalSO2 += zona.actual.SO2;
+            totalNO2 += zona.actual.NO2;
+            totalPM25 += zona.actual.PM2_5;
+
+            // Leer los siguientes 29 días de datos para la misma zona
+            if (i < 29) {
+                fscanf(f, "Zona%s %f %f %f %f %f %f %f\n", 
+                       zona.nombre, 
+                       &zona.actual.CO2, 
+                       &zona.actual.SO2, 
+                       &zona.actual.NO2, 
+                       &zona.actual.PM2_5, 
+                       &zona.clima.temperatura, 
+                       &zona.clima.velocidad_viento, 
+                       &zona.clima.humedad);
+            }
+        }
+
         // Calcular el promedio de los contaminantes
-        float promedioCO2 = totalCO2 / contadorZonas;
-        float promedioSO2 = totalSO2 / contadorZonas;
-        float promedioNO2 = totalNO2 / contadorZonas;
-        float promedioPM25 = totalPM25 / contadorZonas;
+        float promedioCO2 = totalCO2 / 30;
+        float promedioSO2 = totalSO2 / 30;
+        float promedioNO2 = totalNO2 / 30;
+        float promedioPM25 = totalPM25 / 30;
 
-        printf("Promedio histórico de contaminantes:\n");
+        printf("Promedio histórico de contaminantes para la zona %s:\n", zona.nombre);
         printf("------------------------------------------------------------\n");
         printf("Promedio CO2: %.2f ppm\n", promedioCO2);
         printf("Promedio SO2: %.2f ppm\n", promedioSO2);
@@ -286,77 +248,17 @@ void promediohistorico() {
             printf("PM2.5: Dentro del límite seguro de %.2f µg/m3.\n", LIMITE_PM25);
         }
 
-    } else {
+        printf("\n");
+        contadorZonas++;
+    }
+
+    if (contadorZonas == 0) {
         printf("No se encontraron datos para calcular el promedio.\n");
     }
+
     fclose(f);
 }
 
-// Función para generar un reporte histórico de los promedios de contaminación
-void generarReporteHistorico() {
-    FILE *f = fopen("historico.txt", "r");  // Abrir archivo de datos históricos
-    if (f == NULL) {
-        printf("Error: No se pudo abrir el archivo historico.txt\n");
-        return;
-    }
-
-    FILE *reporte = fopen("reporte_historico.txt", "w");  // Abrir archivo para escribir el reporte
-    if (reporte == NULL) {
-        printf("Error: No se pudo crear el reporte_historico.txt\n");
-        fclose(f);
-        return;
-    }
-
-    struct Zona zona;
-    float acumuladoCO2 = 0, acumuladoSO2 = 0, acumuladoNO2 = 0, acumuladoPM25 = 0;
-    float totalCO2, totalSO2, totalNO2, totalPM25;
-    int contadorZonas = 0;
-
-    fprintf(reporte, "Reporte Histórico de Promedios de Contaminación del Aire\nFecha: %s\n\n", __DATE__);
-
-    // Iterar sobre cada zona en el archivo
-    while (fscanf(f, "Zona%s %f %f %f %f %f %f %f\n", 
-                  zona.nombre, 
-                  &zona.actual.CO2, 
-                  &zona.actual.SO2, 
-                  &zona.actual.NO2, 
-                  &zona.actual.PM2_5, 
-                  &zona.clima.temperatura, 
-                  &zona.clima.velocidad_viento, 
-                  &zona.clima.humedad) == 8) {
-        
-        // Acumulamos los valores de cada contaminante para cada zona
-        acumuladoCO2 += zona.actual.CO2;
-        acumuladoSO2 += zona.actual.SO2;
-        acumuladoNO2 += zona.actual.NO2;
-        acumuladoPM25 += zona.actual.PM2_5;
-
-        contadorZonas++;
-
-        // Calcular el promedio histórico de contaminantes por zona
-        totalCO2 = zona.actual.CO2;
-        totalSO2 = zona.actual.SO2;
-        totalNO2 = zona.actual.NO2;
-        totalPM25 = zona.actual.PM2_5;
-    }
-
-    // Si hay zonas registradas, calcular el promedio histórico general
-    if (contadorZonas > 0) {
-        fprintf(reporte, "------------------------------------------------------------\n");
-        fprintf(reporte, "Promedio histórico de todos los contaminantes:\n");
-        fprintf(reporte, "------------------------------------------------------------\n");
-        fprintf(reporte, "Promedio general CO2: %.2f ppm\n", acumuladoCO2 / contadorZonas);
-        fprintf(reporte, "Promedio general SO2: %.2f ppm\n", acumuladoSO2 / contadorZonas);
-        fprintf(reporte, "Promedio general NO2: %.2f ppm\n", acumuladoNO2 / contadorZonas);
-        fprintf(reporte, "Promedio general PM2.5: %.2f µg/m3\n", acumuladoPM25 / contadorZonas);
-    } else {
-        fprintf(reporte, "No se encontraron datos para generar un reporte histórico.\n");
-    }
-
-    fclose(f);
-    fclose(reporte);
-    printf("Reporte histórico generado correctamente en 'reporte_historico.txt'.\n");
-}
 
 // Función para predecir el nivel de un contaminante en una zona
 void prediccionContaminantesPromedio() {
@@ -451,6 +353,20 @@ void prediccionContaminantesPromedio() {
         printf("SO2: %.2f ppm\n", prediccion_SO2);
         printf("NO2: %.2f ppm\n", prediccion_NO2);
         printf("PM2.5: %.2f µg/m3\n", prediccion_PM25);
+
+        // Emitir alertas si los niveles de contaminación exceden los límites
+        if (prediccion_CO2 > LIMITE_CO2) {
+            printf("Alerta: CO2 excederá el límite seguro de %.2f ppm.\n", LIMITE_CO2);
+        }
+        if (prediccion_SO2 > LIMITE_SO2) {
+            printf("Alerta: SO2 excederá el límite seguro de %.2f ppm.\n", LIMITE_SO2);
+        }
+        if (prediccion_NO2 > LIMITE_NO2) {
+            printf("Alerta: NO2 excederá el límite seguro de %.2f ppm.\n", LIMITE_NO2);
+        }
+        if (prediccion_PM25 > LIMITE_PM25) {
+            printf("Alerta: PM2.5 excederá el límite seguro de %.2f µg/m3.\n", LIMITE_PM25);
+        }
         printf("\n");
 
         // Incrementar el contador de zonas
@@ -459,7 +375,6 @@ void prediccionContaminantesPromedio() {
 
     fclose(f);
 }
-
 
 
 // Función para leer el reporte de contaminación de un archivo
